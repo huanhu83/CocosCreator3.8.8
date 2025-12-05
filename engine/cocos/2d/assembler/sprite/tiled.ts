@@ -22,16 +22,16 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
-import type { IUV, SpriteFrame } from '../../assets/sprite-frame';
-import { Mat4, Color, errorID } from '../../../core';
-import type { IRenderData, RenderData } from '../../renderer/render-data';
-import type { IBatcher } from '../../renderer/i-batcher';
-import type { Sprite } from '../../components/sprite';
-import type { UIRenderer } from '../../framework/ui-renderer';
-import type { IAssembler } from '../../renderer/base';
-import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
-import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { JSB } from "internal:constants";
+import type { IUV, SpriteFrame } from "../../assets/sprite-frame";
+import { Mat4, Color, errorID } from "../../../core";
+import type { IRenderData, RenderData } from "../../renderer/render-data";
+import type { IBatcher } from "../../renderer/i-batcher";
+import type { Sprite } from "../../components/sprite";
+import type { UIRenderer } from "../../framework/ui-renderer";
+import type { IAssembler } from "../../renderer/base";
+import type { StaticVBChunk } from "../../renderer/static-vb-accessor";
+import { dynamicAtlasManager } from "../../utils/dynamic-atlas/atlas-manager";
 
 const m = new Mat4();
 
@@ -46,12 +46,9 @@ let tempRenderDataLength = 0;
 const tempRenderData: IRenderData[] = [];
 let QUAD_INDICES: Uint16Array | null = null;
 
-function has9SlicedOffsetVertexCount (spriteFrame: SpriteFrame): number {
+function has9SlicedOffsetVertexCount(spriteFrame: SpriteFrame): number {
     if (spriteFrame) {
-        if (spriteFrame.insetTop > 0
-        || spriteFrame.insetBottom > 0
-        || spriteFrame.insetLeft > 0
-        || spriteFrame.insetRight > 0) {
+        if (spriteFrame.insetTop > 0 || spriteFrame.insetBottom > 0 || spriteFrame.insetLeft > 0 || spriteFrame.insetRight > 0) {
             return 2; // left + right
         }
     }
@@ -59,11 +56,11 @@ function has9SlicedOffsetVertexCount (spriteFrame: SpriteFrame): number {
 }
 
 class Tiled implements IAssembler {
-    createData (sprite: UIRenderer): RenderData {
+    createData(sprite: UIRenderer): RenderData {
         return sprite.requestRenderData();
     }
 
-    updateRenderData (sprite: Sprite): void {
+    updateRenderData(sprite: Sprite): void {
         const renderData = sprite.renderData;
         if (!renderData) return;
         const frame = sprite.spriteFrame!;
@@ -71,7 +68,7 @@ class Tiled implements IAssembler {
             return;
         }
 
-        dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        // dynamicAtlasManager.packToDynamicAtlas(sprite, frame); //[自定义]，解决平铺贴图有接缝的问题
 
         if (!renderData.vertDirty) {
             return;
@@ -100,7 +97,7 @@ class Tiled implements IAssembler {
         const row = Math.ceil(vRepeat + offsetVertexCount);
         const col = Math.ceil(hRepeat + offsetVertexCount);
 
-        renderData.dataLength = (row * 2) * (col * 2);
+        renderData.dataLength = row * 2 * (col * 2);
 
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
@@ -123,7 +120,7 @@ class Tiled implements IAssembler {
         renderData.updateRenderData(sprite, frame);
     }
 
-    private createQuadIndices (indexCount: number): void {
+    private createQuadIndices(indexCount: number): void {
         if (!JSB) return;
         if (indexCount % 6 !== 0) {
             errorID(16308);
@@ -144,14 +141,14 @@ class Tiled implements IAssembler {
 
     // dirty Mark
     // the real update uv is on updateWorldUVData
-    updateUVs (sprite: Sprite): void {
+    updateUVs(sprite: Sprite): void {
         const renderData = sprite.renderData;
         if (!renderData) return;
         renderData.vertDirty = true;
         sprite._markForUpdateRenderData();
     }
 
-    fillBuffers (sprite: Sprite, renderer: IBatcher): void {
+    fillBuffers(sprite: Sprite, renderer: IBatcher): void {
         const node = sprite.node;
         const renderData = sprite.renderData;
         if (!renderData) return;
@@ -188,13 +185,13 @@ class Tiled implements IAssembler {
         meshBuffer.setDirty();
     }
 
-    private updateWorldUVData (sprite: Sprite): void {
+    private updateWorldUVData(sprite: Sprite): void {
         const renderData = sprite.renderData;
         if (!renderData) return;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = renderData.chunk.vb;
-        for (let i  = 0; i < dataList.length; i++) {
+        for (let i = 0; i < dataList.length; i++) {
             const offset = i * stride;
             vData[offset + 3] = dataList[i].u;
             vData[offset + 4] = dataList[i].v;
@@ -202,7 +199,7 @@ class Tiled implements IAssembler {
     }
 
     // only for TS
-    private updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk): void {
+    private updateWorldVertexAndUVData(sprite: Sprite, chunk: StaticVBChunk): void {
         const renderData = sprite.renderData;
         if (!renderData) return;
         const node = sprite.node;
@@ -213,7 +210,7 @@ class Tiled implements IAssembler {
         const vData = chunk.vb;
 
         const length = dataList.length;
-        for (let i  = 0; i < length; i++) {
+        for (let i = 0; i < length; i++) {
             const x = dataList[i].x;
             const y = dataList[i].y;
             const z = dataList[i].z;
@@ -229,7 +226,7 @@ class Tiled implements IAssembler {
         this.updateWorldUVData(sprite);
     }
 
-    private updateVerts (sprite: Sprite, sizableWidth: number, sizableHeight: number, row: number, col: number): void {
+    private updateVerts(sprite: Sprite, sizableWidth: number, sizableHeight: number, row: number, col: number): void {
         const uiTrans = sprite.node._getUITransformComp()!;
         const renderData = sprite.renderData;
         if (!renderData) return;
@@ -247,8 +244,8 @@ class Tiled implements IAssembler {
         const topHeight = frame.insetTop;
         const bottomHeight = frame.insetBottom;
         const centerHeight = rect.height - topHeight - bottomHeight;
-        const xScale = (uiTrans.width / (leftWidth + rightWidth)) > 1 ? 1 : (uiTrans.width / (leftWidth + rightWidth));
-        const yScale = (uiTrans.height / (topHeight + bottomHeight)) > 1 ? 1 : (uiTrans.height / (topHeight + bottomHeight));
+        const xScale = uiTrans.width / (leftWidth + rightWidth) > 1 ? 1 : uiTrans.width / (leftWidth + rightWidth);
+        const yScale = uiTrans.height / (topHeight + bottomHeight) > 1 ? 1 : uiTrans.height / (topHeight + bottomHeight);
         let offsetWidth = 0;
         let offsetHeight = 0;
         if (centerWidth > 0) {
@@ -256,12 +253,12 @@ class Tiled implements IAssembler {
              * Because the float numerical calculation in javascript is not accurate enough,
              * there is an expected result of 1.0, but the actual result is 1.000001.
              */
-            offsetWidth = Math.floor(sizableWidth * 1000) / 1000 % centerWidth === 0 ? centerWidth : sizableWidth % centerWidth;
+            offsetWidth = (Math.floor(sizableWidth * 1000) / 1000) % centerWidth === 0 ? centerWidth : sizableWidth % centerWidth;
         } else {
             offsetWidth = sizableWidth;
         }
         if (centerHeight > 0) {
-            offsetHeight = Math.floor(sizableHeight * 1000) / 1000 % centerHeight === 0 ? centerHeight : sizableHeight % centerHeight;
+            offsetHeight = (Math.floor(sizableHeight * 1000) / 1000) % centerHeight === 0 ? centerHeight : sizableHeight % centerHeight;
         } else {
             offsetHeight = sizableHeight;
         }
@@ -299,8 +296,8 @@ class Tiled implements IAssembler {
                     tempRenderData[i].x = -appx + leftWidth * xScale;
                 } else if (i > 1 && i < col - 1) {
                     if (centerWidth > 0) {
-                        tempRenderData[i].x =  -appx + leftWidth * xScale + centerWidth * (i - 1);
-                    } else  {
+                        tempRenderData[i].x = -appx + leftWidth * xScale + centerWidth * (i - 1);
+                    } else {
                         tempRenderData[i].x = leftWidth + sizableWidth - appx;
                     }
                 } else if (i === col - 1) {
@@ -316,12 +313,12 @@ class Tiled implements IAssembler {
                     tempRenderData[i].y = -appy + bottomHeight * yScale;
                 } else if (i > 1 && i < row - 1) {
                     if (centerHeight > 0) {
-                        tempRenderData[i].y =  -appy + bottomHeight * yScale + centerHeight * (i - 1);
+                        tempRenderData[i].y = -appy + bottomHeight * yScale + centerHeight * (i - 1);
                     } else {
                         tempRenderData[i].y = bottomHeight + sizableHeight - appy;
                     }
                 } else if (i === row - 1) {
-                    tempRenderData[i].y =  -appy + bottomHeight * yScale + offsetHeight + centerHeight * (i - 2);
+                    tempRenderData[i].y = -appy + bottomHeight * yScale + offsetHeight + centerHeight * (i - 2);
                 } else if (i >= row) {
                     tempRenderData[i].y = Math.min(bottomHeight + sizableHeight + topHeight, contentHeight) - appy;
                 }
@@ -329,7 +326,10 @@ class Tiled implements IAssembler {
         }
 
         // 填datalist
-        let x = 0; let x1 = 0; let y = 0; let y1 = 0;
+        let x = 0;
+        let x1 = 0;
+        let y = 0;
+        let y1 = 0;
         for (let yIndex = 0; yIndex < row; ++yIndex) {
             y = tempRenderData[yIndex].y;
             y1 = tempRenderData[yIndex + 1].y;
@@ -390,7 +390,7 @@ class Tiled implements IAssembler {
             }
             for (let xIndexUV = 0; xIndexUV < col; ++xIndexUV) {
                 if (sizableWidth > centerWidth) {
-                //if 9 sliced, we should exclude left border vertex (xIndex-1)
+                    //if 9 sliced, we should exclude left border vertex (xIndex-1)
                     const curXRectCount = offsetVertexCount > 0 ? xIndexUV : xIndexUV + 1;
                     // The width of the rect which contains the left bottom vertex in current loop should be calculated in total width.
                     // Example: xIndex = 2 means that these is the third vertex, we should take the rect whose left bottom vertex is this
@@ -405,7 +405,8 @@ class Tiled implements IAssembler {
                 }
 
                 if (rotated) {
-                    if (offsetVertexCount === 0) { //无九宫
+                    if (offsetVertexCount === 0) {
+                        //无九宫
                         tempXVerts[0] = bottomInner.u;
                         tempXVerts[1] = bottomInner.u;
                         tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
@@ -413,16 +414,17 @@ class Tiled implements IAssembler {
                         tempYVerts[0] = leftInner.v;
                         tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
                         tempYVerts[2] = leftInner.v;
-                    } else { //有九宫
+                    } else {
+                        //有九宫
                         if (yIndexUV === 0) {
                             tempXVerts[0] = origin.u;
                             tempXVerts[1] = origin.u;
                             tempXVerts[2] = bottomInner.u;
-                        } else if (yIndexUV < (row - 1)) {
+                        } else if (yIndexUV < row - 1) {
                             tempXVerts[0] = bottomInner.u;
                             tempXVerts[1] = bottomInner.u;
                             tempXVerts[2] = bottomInner.u + (topInner.u - bottomInner.u) * coefV;
-                        } else if (yIndexUV === (row - 1)) {
+                        } else if (yIndexUV === row - 1) {
                             tempXVerts[0] = topInner.u;
                             tempXVerts[1] = topInner.u;
                             tempXVerts[2] = topOuter.u;
@@ -431,11 +433,11 @@ class Tiled implements IAssembler {
                             tempYVerts[0] = origin.v;
                             tempYVerts[1] = leftInner.v;
                             tempYVerts[2] = origin.v;
-                        } else if (xIndexUV < (col - 1)) {
+                        } else if (xIndexUV < col - 1) {
                             tempYVerts[0] = leftInner.v;
                             tempYVerts[1] = leftInner.v + (rightInner.v - leftInner.v) * coefU;
                             tempYVerts[2] = leftInner.v;
-                        } else if (xIndexUV === (col - 1)) {
+                        } else if (xIndexUV === col - 1) {
                             tempYVerts[0] = rightInner.v;
                             tempYVerts[1] = rightOuter.v;
                             tempYVerts[2] = rightInner.v;
@@ -444,7 +446,8 @@ class Tiled implements IAssembler {
                     tempXVerts[3] = tempXVerts[2];
                     tempYVerts[3] = tempYVerts[1];
                 } else {
-                    if (offsetVertexCount === 0) { //无九宫
+                    if (offsetVertexCount === 0) {
+                        //无九宫
                         tempXVerts[0] = leftInner.u;
                         tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
                         tempXVerts[2] = leftInner.u;
@@ -452,16 +455,17 @@ class Tiled implements IAssembler {
                         tempYVerts[0] = bottomInner.v;
                         tempYVerts[1] = bottomInner.v;
                         tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
-                    } else { //有九宫
+                    } else {
+                        //有九宫
                         if (xIndexUV === 0) {
                             tempXVerts[0] = origin.u;
                             tempXVerts[1] = leftInner.u;
                             tempXVerts[2] = origin.u;
-                        } else if (xIndexUV < (col - 1)) {
+                        } else if (xIndexUV < col - 1) {
                             tempXVerts[0] = leftInner.u;
                             tempXVerts[1] = leftInner.u + (rightInner.u - leftInner.u) * coefU;
                             tempXVerts[2] = leftInner.u;
-                        } else if (xIndexUV === (col - 1)) {
+                        } else if (xIndexUV === col - 1) {
                             tempXVerts[0] = rightInner.u;
                             tempXVerts[1] = rightOuter.u;
                             tempXVerts[2] = rightInner.u;
@@ -470,11 +474,11 @@ class Tiled implements IAssembler {
                             tempYVerts[0] = origin.v;
                             tempYVerts[1] = origin.v;
                             tempYVerts[2] = bottomInner.v;
-                        } else if (yIndexUV < (row - 1)) {
+                        } else if (yIndexUV < row - 1) {
                             tempYVerts[0] = bottomInner.v;
                             tempYVerts[1] = bottomInner.v;
                             tempYVerts[2] = bottomInner.v + (topInner.v - bottomInner.v) * coefV;
-                        } else if (yIndexUV === (row - 1)) {
+                        } else if (yIndexUV === row - 1) {
                             tempYVerts[0] = topInner.v;
                             tempYVerts[1] = topInner.v;
                             tempYVerts[2] = topOuter.v;
@@ -503,7 +507,7 @@ class Tiled implements IAssembler {
     }
 
     // fill color here
-    private updateColorLate (sprite: Sprite): void {
+    private updateColorLate(sprite: Sprite): void {
         const renderData = sprite.renderData;
         if (!renderData) return;
         const vData = renderData.chunk.vb;
@@ -526,7 +530,7 @@ class Tiled implements IAssembler {
     }
 
     // Too early
-    updateColor (sprite: Sprite): void {
+    updateColor(sprite: Sprite): void {
         // Update color by updateColorLate
     }
 }
