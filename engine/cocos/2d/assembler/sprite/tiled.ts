@@ -68,7 +68,7 @@ class Tiled implements IAssembler {
             return;
         }
 
-        // dynamicAtlasManager.packToDynamicAtlas(sprite, frame); //[自定义]，解决平铺贴图有接缝的问题
+        dynamicAtlasManager.packToDynamicAtlas(sprite, frame); //[自定义]，解决平铺贴图有接缝的问题
 
         if (!renderData.vertDirty) {
             return;

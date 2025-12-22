@@ -12418,3 +12418,7 @@
 /engine/native/vendor/google/play/RecallClient.cpp
 /engine/native/vendor/google/play/RecallClient.h
 /engine/native/vendor/google/play/TResult.h
+/engine/.idea/inspectionProfiles/Project_Default.xml
+/engine/.idea/jsLinters/eslint.xml
+/engine/native/cocos/platform/openharmony/OpenHarmonyGamepad.cpp
+/engine/native/cocos/platform/openharmony/OpenHarmonyGamepad.h

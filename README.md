@@ -38,7 +38,7 @@
         });
     },
 
-2.底层渲染报错的保护
+2.底层渲染报错的保护（先还原，有问题再加上）
     修改文件：engine\cocos\2d\components\graphics.ts
     protected _render(render: IBatcher): void {
         //#region [自定义]，保护渲染报错
@@ -65,7 +65,7 @@
 
 3~7 仅小游戏有问题，Native项目就不同步了（后续需要参考其他几个版本的自定义修改）
 
-8.修复平铺贴图有接缝的BUG(3.8.7)
+8.修复平铺贴图有接缝的BUG(3.8.7) (这条记录也不需要了，平铺有接缝的，把图片的Packable的勾去掉)
     修改文件：engine\cocos\2d\assembler\tiled.ts
 
     注释掉updateRenderData方法中的一句代码：
