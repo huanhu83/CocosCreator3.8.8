@@ -164,8 +164,10 @@ function downloadAsset (url, options, onComplete) {
 
 function downloadBundle (nameOrUrl, options, onComplete) {
     const bundleName = cc.path.basename(nameOrUrl);
-    const version = options.version || cc.assetManager.downloader.bundleVers[bundleName];
+
+    const version = cc.assetManager.downloader.bundleVers[bundleName];
     const suffix = version ? `${version}.` : '';
+    const configVerA = options.version ? `${options.version}.` : suffix;
 
     function getConfigPathForSubPackage () {
         if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
@@ -216,7 +218,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             require(`./${js}`);
         }
         options.__cacheBundleRoot__ = bundleName;
-        const config = `${url}/config.${suffix}json`;
+        const config = `${url}/config.${configVerA}json`;
         downloadJson(config, options, (err, data) => {
             if (err) {
                 onComplete && onComplete(err);

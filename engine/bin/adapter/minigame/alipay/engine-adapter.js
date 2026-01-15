@@ -157,8 +157,9 @@ function downloadAsset(url, options, onComplete) {
 }
 function downloadBundle(nameOrUrl, options, onComplete) {
   var bundleName = cc.path.basename(nameOrUrl);
-  var version = options.version || cc.assetManager.downloader.bundleVers[bundleName];
+  var version = cc.assetManager.downloader.bundleVers[bundleName];
   var suffix = version ? "".concat(version, ".") : '';
+  var configVerA = options.version ? "".concat(options.version, ".") : suffix;
   function getConfigPathForSubPackage() {
     if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
       return "".concat(bundleName, "/config.").concat(suffix, "json");
@@ -207,7 +208,7 @@ function downloadBundle(nameOrUrl, options, onComplete) {
       require("./".concat(js));
     }
     options.__cacheBundleRoot__ = bundleName;
-    var _config = "".concat(url, "/config.").concat(suffix, "json");
+    var _config = "".concat(url, "/config.").concat(configVerA, "json");
     downloadJson(_config, options, function (err, data) {
       if (err) {
         onComplete && onComplete(err);
@@ -512,6 +513,11 @@ cc.assetManager.init = function (options) {
       var delegate = this._delegate;
       var cbs = this._eventListeners;
       cbs.onKeyboardInput = function (res) {
+        //#region [自定义]，添加如下代码，输入内容超出限定长度后截断
+        if (res.value.length > delegate.maxLength) {
+          res.value = res.value.substr(0, delegate.maxLength);
+        }
+        //#endregion
         if (delegate._string !== res.value) {
           delegate._editBoxTextChanged(res.value);
         }
@@ -576,7 +582,8 @@ cc.assetManager.init = function (options) {
       var multiline = delegate.inputMode === EditBoxComp.InputMode.ANY;
       __globalAdapter.showKeyboard({
         defaultValue: delegate.string,
-        maxLength: delegate.maxLength < 0 ? MAX_VALUE : delegate.maxLength,
+        maxLength: MAX_VALUE,
+        //delegate.maxLength < 0 ? MAX_VALUE : delegate.maxLength, [自定义]
         multiple: multiline,
         confirmHold: false,
         confirmType: getKeyboardReturnType(delegate.returnType),
